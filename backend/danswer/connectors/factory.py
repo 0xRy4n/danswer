@@ -72,6 +72,7 @@ def identify_connector_class(
         DocumentSource.LOOPIO: LoopioConnector,
         DocumentSource.SHAREPOINT: SharepointConnector,
         DocumentSource.AXERO: AxeroConnector,
+        DocumentSource.XENFORO: XenforoConnector,
     }
     connector_by_source = connector_map.get(source, {})
 

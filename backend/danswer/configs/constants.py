@@ -95,6 +95,7 @@ class DocumentSource(str, Enum):
     LOOPIO = "loopio"
     SHAREPOINT = "sharepoint"
     AXERO = "axero"
+    XENFORO = "xenforo"
 
 
 class DocumentIndexType(str, Enum):
