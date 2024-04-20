@@ -82,6 +82,7 @@ services:
     volumes:
       - local_dynamic_storage:/home/storage
       - file_connector_tmp_storage:/home/file_connector_storage
+      - model_cache_nltk:/root/nltk_data/
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -180,6 +181,7 @@ services:
     volumes:
       - local_dynamic_storage:/home/storage
       - file_connector_tmp_storage:/home/file_connector_storage
+      - model_cache_nltk:/root/nltk_data/
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -210,6 +212,8 @@ services:
     build:
       context: ../../backend
       dockerfile: Dockerfile.model_server
+    ports:
+      - "9000:9000"
     command: >
       /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-false}\" = \"True\" ]; then
         echo 'Skipping service...';
@@ -223,6 +227,7 @@ services:
       # Set to debug to get more fine-grained logs
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
+      - model_cache_torch:/root/.cache/torch/
       - model_cache_huggingface:/root/.cache/huggingface/
     logging:
       driver: json-file
@@ -250,6 +255,7 @@ services:
       # Set to debug to get more fine-grained logs
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
+      - model_cache_torch:/root/.cache/torch/
       - model_cache_huggingface:/root/.cache/huggingface/
     logging:
       driver: json-file
@@ -290,7 +296,7 @@ services:
     image: nginx:1.23.4-alpine
     restart: always
     # nginx will immediately crash with `nginx: [emerg] host not found in upstream`
-    # if api_server / web_server are not up 
+    # if api_server / web_server are not up
     depends_on:
       - api_server
       - web_server
@@ -306,8 +312,8 @@ services:
       options:
         max-size: "50m"
         max-file: "6"
-    # the specified script waits for the api_server to start up. 
-    # Without this we've seen issues where nginx shows no error logs but 
+    # the specified script waits for the api_server to start up.
+    # Without this we've seen issues where nginx shows no error logs but
     # does not recieve any traffic
     # NOTE: we have to use dos2unix to remove Carriage Return chars from the file
     # in order to make this work on both Unix-like systems and windows
@@ -317,12 +323,10 @@ services:
         
 
 volumes:
-  # local_dynamic_storage is legacy only now
   local_dynamic_storage:
-  # used to store files uploaded by the user temporarily while we are indexing them
-  # file_connector_tmp_storage is legacy only now
-  file_connector_tmp_storage:
+  file_connector_tmp_storage:  # used to store files uploaded by the user temporarily while we are indexing them
   db_volume:
   vespa_volume:
-  # Created by the container itself
+  model_cache_torch:
+  model_cache_nltk:
   model_cache_huggingface:
